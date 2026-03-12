@@ -4,13 +4,13 @@ End-to-end pipeline: PostgreSQL OLTP → Kafka (CDC via Debezium) → Exasol OLA
 
 ## Demo Video
 
-![Real-time banking fraud pipeline demo](docs/assets/realtime-banking-fraud-detection.gif)
+![Real-Time Banking Fraud Pipeline Demo GIF](docs/assets/realtime-banking-fraud-detection.gif)
 
 [Watch or download the MP4 demo](docs/assets/realtime-banking-fraud-detection.mp4)
 
 ## Architecture
 
-![Banking fraud pipeline story](docs/assets/banking-fraud-story.gif)
+![Banking Fraud Pipeline Architecture GIF](docs/assets/banking-fraud-architecture.gif)
 
 ```text
 PostgreSQL (OLTP)
