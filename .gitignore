@@ -6,3 +6,4 @@ venv/
 .env
 models/*
 !models/.gitkeep
+docs/customer-demo-brief.md
