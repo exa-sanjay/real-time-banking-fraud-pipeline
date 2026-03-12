@@ -114,6 +114,141 @@ These are the easiest columns to explain to an audience because they map directl
 - `FRAUD_LABEL`: known investigated outcome if available
 - `FEATURE_COMPUTED_AT`: when the feature row was last refreshed
 
+## How The Model Is Trained And Used In Exasol
+
+The project uses a simple fraud model lifecycle:
+
+1. build and refresh `ANALYTICS.FRAUD_FEATURES`
+2. train one fraud model in Python using those features
+3. upload the model artifact to BucketFS
+4. load the model inside an Exasol Python UDF
+5. write `FRAUD_SCORE` back into `ANALYTICS.FRAUD_FEATURES`
+
+Important clarification:
+
+- feature engineering and scoring happen in Exasol
+- model training happens in Python
+- the training data can come from Exasol itself
+
+### Training Data Source
+
+The training script is [train_pipeline.py](../train_pipeline.py).
+
+It reads the same feature columns that exist in `ANALYTICS.FRAUD_FEATURES`:
+
+- `AMOUNT_USD`
+- `TXN_COUNT_1H`
+- `TXN_COUNT_24H`
+- `AMOUNT_SUM_1H`
+- `AMOUNT_SUM_24H`
+- `AMOUNT_VS_AVG_RATIO`
+- `IS_CROSS_BORDER`
+- `IS_NEW_COUNTRY_30D`
+- `IS_NEW_DEVICE_30D`
+- `IS_NIGHT_TXN`
+- `IS_WEEKEND_TXN`
+- `MCC_BASE_RISK`
+
+The label is:
+
+- `FRAUD_LABEL`
+
+When you run the training script, it tries to load labeled rows from Exasol:
+
+```sql
+SELECT <feature columns>, FRAUD_LABEL
+FROM ANALYTICS.FRAUD_FEATURES
+WHERE FRAUD_LABEL IS NOT NULL;
+```
+
+If there are not enough labeled fraud examples yet, the script can fall back to:
+
+- `hybrid`: real Exasol rows plus synthetic rows
+- `synthetic`: synthetic rows only
+
+That makes the demo workable even when the real warehouse is still small.
+
+### Model Training
+
+The current model is a simple logistic regression model.
+
+The training pipeline does this:
+
+- coerces numeric and boolean feature columns into model-friendly values
+- clips extreme values like `AMOUNT_USD` and `AMOUNT_VS_AVG_RATIO`
+- splits the data into train and test sets
+- standardizes the features with `StandardScaler`
+- trains `LogisticRegression`
+- evaluates the model with ROC-AUC and a classification report
+
+The output artifact is:
+
+- `models/fraud_model.pkl`
+
+That pickle file contains:
+
+- the trained logistic regression model
+- the fitted scaler
+- the feature column list
+- the model name `LOGREG_DEMO_v1`
+
+### Upload To BucketFS
+
+After training, upload the model to BucketFS so Exasol can read it.
+
+The UDF expects this path:
+
+- `/buckets/bfsdefault/default/drivers/models/fraud_model.pkl`
+
+So the uploaded object should be:
+
+- `models/fraud_model.pkl`
+
+### How Exasol Uses The Model
+
+The scoring UDF is defined in [02_features_and_udfs.sql](../02_features_and_udfs.sql).
+
+`ANALYTICS.FRAUD_SCORE_UDF` does the following for each feature row:
+
+- loads `fraud_model.pkl` from BucketFS
+- builds a feature vector from the Exasol row
+- converts booleans like `IS_CROSS_BORDER` into `0/1`
+- applies the saved scaler
+- runs `predict_proba(...)`
+- returns the fraud probability as a value between `0` and `1`
+
+Then the batch scoring step updates the table:
+
+```sql
+UPDATE ANALYTICS.FRAUD_FEATURES
+SET
+    FRAUD_SCORE = ANALYTICS.FRAUD_SCORE_UDF(...),
+    MODEL_VERSION = 'LOGREG_DEMO_v1'
+WHERE FRAUD_SCORE IS NULL OR MODEL_VERSION IS NULL;
+```
+
+That is why `ANALYTICS.FRAUD_FEATURES` is both:
+
+- the model input table
+- and the table where the final fraud score is stored
+
+
+## Demo Risk Thresholds
+
+The dashboard classifies `FRAUD_SCORE` into simple demo-friendly buckets:
+
+- `High Risk`: `FRAUD_SCORE >= 0.65`
+- `Needs Review`: `FRAUD_SCORE >= 0.35` and `< 0.65`
+- `Low Risk`: `FRAUD_SCORE < 0.35`
+
+These thresholds are currently used in the demo UI to highlight risky rows in the risk score board.
+
+Interpret them as:
+
+- `High Risk`: investigate first
+- `Needs Review`: suspicious enough for analyst review
+- `Low Risk`: lower-priority transaction in the current ranking
+
 ## How To Explain A High-Scoring Row
 
 Example explanation:
@@ -132,15 +267,6 @@ That means:
 - the merchant category is inherently risky
 
 So a higher `FRAUD_SCORE` is easy to justify.
-
-## Good Audience Narrative
-
-Use this explanation:
-
-- “This table is where raw events become fraud intelligence.”
-- “Each row is one transaction.”
-- “The columns describe both the transaction itself and the behavioral signals around it.”
-- “The final fraud score is computed inside Exasol and written back into the same analytical table.”
 
 ## Helpful Queries
 

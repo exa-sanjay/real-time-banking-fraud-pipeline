@@ -2,6 +2,14 @@
 
 End-to-end pipeline: PostgreSQL OLTP → Kafka (CDC via Debezium) → Exasol OLAP → ML UDFs
 
+## Demo Video
+
+<video src="docs/assets/realtime-banking-fraud-detection.mp4" controls muted width="100%">
+  Your browser does not support inline video playback.
+</video>
+
+[Watch or download the MP4 demo](docs/assets/realtime-banking-fraud-detection.mp4)
+
 ## Architecture
 
 ```
@@ -16,7 +24,6 @@ PostgreSQL (OLTP)
 ## Additional Docs
 
 - [Technical Architecture](docs/architecture-technical.md)
-- [Customer Demo Brief](docs/customer-demo-brief.md)
 - [Fraud Features Guide](docs/fraud-features-guide.md)
 
 ## Quick Start
@@ -73,6 +80,7 @@ USE_EXTERNAL_POSTGRES=true bash deploy.sh
 ├── kafka_connect/Dockerfile        # Custom Debezium Connect image with Avro converter jars
 ├── deploy.sh                       # Bootstrap script
 ├── deploy.ps1                      # Windows-native bootstrap script
+├── demo_dashboard.py               # Streamlit demo UI for inserting transactions and showing pipeline state
 ├── 01_schema.sql                   # PostgreSQL OLTP schema
 ├── 02_seed.sql                     # PostgreSQL seed data
 ├── init_replication.sh             # Debezium replication user + publication
@@ -107,6 +115,43 @@ Important format note:
 
 - Debezium publishes Avro only
 - Exasol imports from `banking_avro.public.*` only
+
+## Demo Dashboard
+
+For a customer demo, you can use the Streamlit dashboard instead of inserting rows manually.
+
+This dashboard is a lightweight demo control surface for the full pipeline. It lets you create a banking transaction in PostgreSQL, watch the same event move through Kafka and into Exasol, and then show the final fraud score in a single UI.
+
+The dashboard now also runs inside the same Docker Compose stack, so you can launch the full demo environment without a separate Python virtual environment. By default it is exposed at `http://localhost:8501`.
+
+Install the Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the dashboard:
+
+```bash
+python -m streamlit run demo_dashboard.py
+```
+
+Or use the Dockerized dashboard that is part of the main compose stack:
+
+```bash
+docker compose up -d --build demo-dashboard
+```
+
+If Exasol is external, set `CONTAINER_EXASOL_DSN` in `.env` to an address reachable from inside Docker. For the common local setup where Exasol is published on the host, use `host.docker.internal:8563`.
+
+The dashboard lets you:
+
+- insert a new transaction into PostgreSQL
+- optionally trigger the Exasol import, merge, analytics refresh, and fraud scoring steps
+- view the same transaction across PostgreSQL, `KAFKA_STAGE`, `RAW`, and `ANALYTICS.FRAUD_FEATURES`
+- show the top scored transactions for the demo
+
+Use it together with Kafka UI in the browser at `http://localhost:8080` so you can show the Debezium event appearing in Kafka between the PostgreSQL insert and the Exasol import.
 
 ## Setup Commands
 
