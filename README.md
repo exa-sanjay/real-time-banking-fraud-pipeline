@@ -16,7 +16,6 @@ PostgreSQL (OLTP)
 ## Additional Docs
 
 - [Technical Architecture](docs/architecture-technical.md)
-- [Customer Demo Brief](docs/customer-demo-brief.md)
 - [Fraud Features Guide](docs/fraud-features-guide.md)
 
 ## Quick Start
