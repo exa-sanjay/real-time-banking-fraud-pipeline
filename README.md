@@ -10,13 +10,14 @@ End-to-end pipeline: PostgreSQL OLTP → Kafka (CDC via Debezium) → Exasol OLA
 
 ## Architecture
 
-```
+![Banking fraud pipeline story](docs/assets/banking-fraud-story.gif)
+
+```text
 PostgreSQL (OLTP)
-  └─ Debezium CDC (WAL)
-       └─ Kafka Topics
-            └─ official Exasol Kafka connector
-                 └─ RAW → CLEANSED → ANALYTICS layers
-                      └─ Python ML UDF (Fraud scoring)
+  -> Debezium CDC (WAL)
+  -> Kafka + Avro + Schema Registry
+  -> Exasol RAW / CLEANSED / ANALYTICS
+  -> Python ML UDF (Fraud scoring)
 ```
 
 ## Additional Docs
