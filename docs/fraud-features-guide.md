@@ -11,7 +11,7 @@ Think of it as:
 - optional ground-truth label from investigations
 - model output written back into the same table
 
-The table is defined in `01_exasol_schema.sql` and populated in `02_features_and_udfs.sql`.
+The table is defined in `01_exasol_schema.sql`, refreshed by `07_refresh_analytics_features.sql`, and scored by `02_features_and_udfs.sql`.
 
 ## How To Read The Table
 
@@ -126,7 +126,8 @@ The project uses a simple fraud model lifecycle:
 
 Important clarification:
 
-- feature engineering and scoring happen in Exasol
+- feature engineering and feature refresh happen in Exasol
+- fraud scoring happens in Exasol
 - model training happens in Python
 - the training data can come from Exasol itself
 

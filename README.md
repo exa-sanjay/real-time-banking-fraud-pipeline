@@ -406,7 +406,7 @@ SELECT ANALYTICS.FRAUD_SCORE_UDF(
 );
 
 -- Batch score all pending transactions
--- (run 02_features_and_udfs.sql Step 3c)
+-- (run 02_features_and_udfs.sql Step 1c)
 ```
 
 ## Monitoring

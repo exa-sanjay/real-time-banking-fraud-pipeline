@@ -43,7 +43,8 @@ The current recommended showcase path is:
 
 ### ML Layer
 
-- `02_features_and_udfs.sql` transforms RAW data into analytical features and defines a single Python UDF for fraud scoring inside Exasol.
+- `07_refresh_analytics_features.sql` refreshes `CLEANSED` dimensions / facts and rebuilds `ANALYTICS.FRAUD_FEATURES`.
+- `02_features_and_udfs.sql` defines a single Python UDF for fraud scoring and applies batch scoring inside Exasol.
 - `train_pipeline.py` trains one simple logistic regression fraud model for the demo.
 - The model artifact is uploaded to BucketFS and loaded by the Exasol Python UDF.
 
@@ -304,7 +305,8 @@ Then in Exasol run:
 3. `04_exasol_kafka_connector_udfs.sql`
 4. `05_exasol_kafka_connector_import_avro.sql`
 5. `06_exasol_kafka_connector_merge.sql`
-6. `02_features_and_udfs.sql`
+6. `07_refresh_analytics_features.sql`
+7. `02_features_and_udfs.sql`
 
 That gives the cleanest narrative:
 
