@@ -277,7 +277,7 @@ try {
     Write-Host "      03_exasol_kafka_connector_schema.sql"
     Write-Host " 3. Upload the official kafka-connector-extension JAR to BucketFS."
     Write-Host "    If Exasol runs in Docker, prepare its network access with:"
-    Write-Host "      bash prepare_exasol_docker.sh"
+    Write-Host "      pwsh -File .\prepare_exasol_docker.ps1"
     Write-Host "    Then run:"
     Write-Host "      04_exasol_kafka_connector_udfs.sql"
     Write-Host "      05_exasol_kafka_connector_import_avro.sql"

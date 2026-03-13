@@ -53,7 +53,7 @@ Before running the Exasol-side steps, make sure you have:
 - an Exasol database you can connect to over SQL
 - BucketFS write access to upload the Kafka connector JAR and `fraud_model.pkl`
 - BucketFS published on `2580` or `2581` if you are uploading from your host machine
-- if Exasol runs in Docker, the ability to run `bash prepare_exasol_docker.sh` so `kafka` and `schema-registry` resolve inside the Exasol container
+- if Exasol runs in Docker, run `bash prepare_exasol_docker.sh` or `pwsh -File .\prepare_exasol_docker.ps1` so `kafka` and `schema-registry` resolve inside the Exasol container
 
 The repo is Avro-only. Start it with:
 
@@ -237,7 +237,16 @@ Then, in Exasol:
 1. Run `01_exasol_schema.sql`
 2. Run `03_exasol_kafka_connector_schema.sql`
 3. Upload the connector JAR to BucketFS
-4. If Exasol itself runs in Docker, run `bash prepare_exasol_docker.sh`
+4. If Exasol itself runs in Docker, run:
+
+```powershell
+pwsh -File .\prepare_exasol_docker.ps1
+```
+
+```bash
+bash prepare_exasol_docker.sh
+```
+
 5. Run `04_exasol_kafka_connector_udfs.sql`
 6. Run `05_exasol_kafka_connector_import_avro.sql`
 7. Run `06_exasol_kafka_connector_merge.sql`
@@ -249,7 +258,7 @@ Important notes:
 - `06_exasol_kafka_connector_merge.sql` keeps the latest row per business key and applies deletes into `RAW.*`
 - `07_refresh_analytics_features.sql` builds the training dataset in `ANALYTICS.FRAUD_FEATURES`
 - `04_exasol_kafka_connector_udfs.sql` is prewired to `/buckets/bfsdefault/default/drivers/exasol-kafka-connector-extension-1.7.16.jar`
-- The import SQLs use `kafka:9092` and `schema-registry:8081`; `prepare_exasol_docker.sh` makes those names resolvable from the Exasol container
+- The import SQLs use `kafka:9092` and `schema-registry:8081`; `prepare_exasol_docker.sh` or `prepare_exasol_docker.ps1` makes those names resolvable from the Exasol container
 
 ### Avro + Schema Registry
 

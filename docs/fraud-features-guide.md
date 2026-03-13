@@ -172,6 +172,14 @@ That makes the demo workable even when the real warehouse is still small.
 
 The current model is a simple logistic regression model.
 
+The main Python libraries used are:
+
+- `pandas`: dataframe handling and feature preparation
+- `numpy`: numeric arrays and synthetic data generation
+- `scikit-learn`: `LogisticRegression`, `StandardScaler`, train/test split, and evaluation metrics
+- `pyexasol`: reading labeled training data from Exasol
+- Python `pickle`: serializing the trained artifact into `fraud_model.pkl`
+
 The training pipeline does this:
 
 - coerces numeric and boolean feature columns into model-friendly values
@@ -191,6 +199,14 @@ That pickle file contains:
 - the fitted scaler
 - the feature column list
 - the model name `LOGREG_DEMO_v1`
+
+So the full training story is:
+
+1. `train_pipeline.py` reads labeled rows from `ANALYTICS.FRAUD_FEATURES`
+2. it prepares the feature matrix with `pandas` and `numpy`
+3. it scales the features with `StandardScaler`
+4. it trains a `scikit-learn` `LogisticRegression` model
+5. it serializes the model package with `pickle` into `fraud_model.pkl`
 
 ### Upload To BucketFS
 
