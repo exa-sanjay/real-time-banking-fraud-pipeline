@@ -1,12 +1,16 @@
-# Banking Analytics Pipeline
+# Real-Time Banking Fraud Detection
 
-End-to-end pipeline: PostgreSQL OLTP → Kafka (CDC via Debezium) → Exasol OLAP → ML UDFs
+End-to-end banking fraud pipeline: PostgreSQL OLTP -> Kafka CDC with Debezium -> Exasol analytics -> in-database ML scoring.
+
+This solution is packaged as a single folder for inclusion in [`exasol-labs/industry-solutions`](https://github.com/exasol-labs/industry-solutions/). Copy or check in the `realtime-banking-fraud-detection/` folder as one complete industry solution.
 
 ## Demo Video
 
 ![Real-Time Banking Fraud Pipeline Demo GIF](docs/assets/realtime-banking-fraud-detection.gif)
 
 [Watch or download the MP4 demo](docs/assets/realtime-banking-fraud-detection.mp4)
+
+This solution shows how a bank can move from delayed fraud review to near real-time fraud visibility by streaming operational transaction changes into Exasol, building analytical fraud features, and scoring transactions directly where the governed data lives. For a business user, the impact is practical: suspicious transactions can be surfaced faster, analysts can see the path from source transaction to model score, and fraud operations can reduce manual investigation time while keeping the data pipeline transparent and repeatable.
 
 ## Architecture
 
@@ -24,8 +28,11 @@ PostgreSQL (OLTP)
 
 - [Technical Architecture](docs/architecture-technical.md)
 - [Fraud Features Guide](docs/fraud-features-guide.md)
+- [Customer Demo Brief](docs/customer-demo-brief.md)
 
 ## Quick Start
+
+From the `realtime-banking-fraud-detection/` folder:
 
 ```bash
 cp .env.example .env
@@ -75,7 +82,12 @@ USE_EXTERNAL_POSTGRES=true bash deploy.sh
 
 ```
 ├── docker-compose.yml              # Self-contained local demo stack
+├── .env.example                    # Local configuration template
+├── .gitignore                      # Keeps secrets, caches, and generated models out of git
 ├── docs/                           # Technical + customer-facing architecture notes
+│   ├── customer-demo-brief.md      # Business-facing demo talk track
+│   ├── architecture-technical.md   # Technical architecture details
+│   └── fraud-features-guide.md     # Fraud feature definitions and usage notes
 ├── kafka_connect/Dockerfile        # Custom Debezium Connect image with Avro converter jars
 ├── deploy.sh                       # Bootstrap script
 ├── deploy.ps1                      # Windows-native bootstrap script
