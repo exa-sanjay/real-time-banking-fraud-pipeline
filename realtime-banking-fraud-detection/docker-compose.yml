@@ -31,7 +31,7 @@ services:
       - "-c"
       - "max_wal_senders=5"
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
@@ -70,8 +70,8 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"        # internal
-      - "29092:29092"      # external (host)
+      - "127.0.0.1:9092:9092"        # internal
+      - "127.0.0.1:29092:29092"      # external (host)
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -101,7 +101,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
@@ -125,7 +125,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8083:8083"
+      - "127.0.0.1:8083:8083"
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       GROUP_ID: banking-connect-cluster
@@ -154,13 +154,13 @@ services:
   # KAFKA UI  (optional - nice monitoring UI)
   # ─────────────────────────────────────────────
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
+    image: provectuslabs/kafka-ui:v0.7.2
     container_name: banking-kafka-ui
     restart: unless-stopped
     depends_on:
       - kafka
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: banking
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -184,7 +184,7 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8501:8501"
+      - "127.0.0.1:8501:8501"
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432

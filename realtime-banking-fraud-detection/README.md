@@ -2,7 +2,7 @@
 
 End-to-end banking fraud pipeline: PostgreSQL OLTP -> Kafka CDC with Debezium -> Exasol analytics -> in-database ML scoring.
 
-This solution is packaged as a single folder for inclusion in [`exasol-labs/industry-solutions`](https://github.com/exasol-labs/industry-solutions/). Copy or check in the `realtime-banking-fraud-detection/` folder as one complete industry solution.
+This solution is packaged as a single folder for inclusion in [`exasol-labs/industry-solutions`](https://github.com/exasol-labs/industry-solutions/). Everything needed for the solution lives inside `realtime-banking-fraud-detection/` so it can sit alongside other industry solutions without relying on repo-root files.
 
 ## Demo Video
 
@@ -10,7 +10,7 @@ This solution is packaged as a single folder for inclusion in [`exasol-labs/indu
 
 [Watch or download the MP4 demo](docs/assets/realtime-banking-fraud-detection.mp4)
 
-This solution shows how a bank can move from delayed fraud review to near real-time fraud visibility by streaming operational transaction changes into Exasol, building analytical fraud features, and scoring transactions directly where the governed data lives. For a business user, the impact is practical: suspicious transactions can be surfaced faster, analysts can see the path from source transaction to model score, and fraud operations can reduce manual investigation time while keeping the data pipeline transparent and repeatable.
+This solution shows how a bank can move from delayed fraud review to near real-time fraud visibility by streaming operational transaction changes into Exasol, building analytical fraud features, and scoring transactions directly where the governed data lives. For a business user, the impact is direct: suspicious transactions can be surfaced faster, analysts can trace the path from source transaction to model score, and fraud operations can reduce manual investigation time while keeping the pipeline transparent and repeatable.
 
 ## Architecture
 
@@ -29,6 +29,8 @@ PostgreSQL (OLTP)
 - [Technical Architecture](docs/architecture-technical.md)
 - [Fraud Features Guide](docs/fraud-features-guide.md)
 - [Customer Demo Brief](docs/customer-demo-brief.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
 
 ## Quick Start
 
@@ -51,6 +53,12 @@ pwsh -File .\deploy.ps1
 By default, `docker-compose.yml` provisions PostgreSQL, Kafka, Zookeeper, Schema Registry, Kafka Connect, and Kafka UI so the demo stack starts in one go.
 
 Exasol is treated as an external analytical target. The supported Kafka-to-Exasol path in this repo is the official Exasol Kafka connector through BucketFS-hosted UDFs.
+
+The published ports are bound to `127.0.0.1` by default so the demo services stay local to the machine running the stack.
+
+## Use Case
+
+Banks and fintech teams often have operational transaction data in PostgreSQL, event movement through Kafka, and analytics or fraud investigation workloads that depend on slower downstream refresh cycles. This solution demonstrates a practical path to near real-time fraud analytics in Exasol: capture transaction changes once, stream them through a governed schema layer, land them in analytical tables, and score them close to the data. The business value is faster fraud visibility, clearer analyst workflows, and a demoable architecture that connects source activity, streaming infrastructure, and in-database scoring in one traceable flow.
 
 ## Prerequisites
 
@@ -426,3 +434,12 @@ SELECT ANALYTICS.FRAUD_SCORE_UDF(
 - **Kafka UI**: http://localhost:8080 — topic lag, consumer groups, connector status
 - **Kafka Connect REST**: http://localhost:8083/connectors
 - **Schema Registry**: http://localhost:8081/subjects
+
+## Validation
+
+Before pushing changes, run these quick checks from the `realtime-banking-fraud-detection/` folder:
+
+```bash
+docker compose --env-file .env.example config --quiet
+python -m compileall -q .
+```
