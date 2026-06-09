@@ -6,11 +6,9 @@ This solution is packaged as a single folder for inclusion in [`exasol-labs/indu
 
 ## Demo Video
 
-![Real-Time Banking Fraud Pipeline Demo GIF](docs/assets/realtime-banking-fraud-detection.gif)
+https://github.com/user-attachments/assets/8d707b18-a52f-4228-a635-fbca49f753c4
 
-<video src="docs/assets/realtime-banking-fraud-detection.mp4" controls width="100%">
-  Watch or download the MP4 demo: docs/assets/realtime-banking-fraud-detection.mp4
-</video>
+> Don't see the video? [Watch the demo](docs/assets/realtime-banking-fraud-detection.mp4).
 
 This solution shows how a bank can move from delayed fraud review to near real-time fraud visibility by streaming operational transaction changes into Exasol, building analytical fraud features, and scoring transactions directly where the governed data lives. For a business user, the impact is direct: suspicious transactions can be surfaced faster, analysts can trace the path from source transaction to model score, and fraud operations can reduce manual investigation time while keeping the pipeline transparent and repeatable.
 
